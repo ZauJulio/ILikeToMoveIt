@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useState } from "react";
+import { createContext, ReactNode, useEffect, useState } from "react";
 import challanges from "../../challenges.json";
 
 interface Challenge {
@@ -33,24 +33,44 @@ export function ChallengesProvider({ children }: ChallengesProviderProps) {
 
   const experienceToNextLevel = Math.pow((level + 1) * 5, 2);
 
+  useEffect(() => {
+    Notification.requestPermission();
+  }, []);
+
   function levelUp() {
     setLevel(level + 1);
   }
 
   function completeChallenge() {
-    const incresedXp = currentExperience + activeChallenge.amount;
-    if (incresedXp > experienceToNextLevel) {
+    if (!activeChallenge) {
+      return;
+    }
+
+    let finalXp = currentExperience + activeChallenge.amount;
+
+    if (finalXp >= experienceToNextLevel) {
+      finalXp = finalXp - experienceToNextLevel;
       levelUp();
     }
 
-    setCurrentExperience(incresedXp);
+    setCurrentExperience(finalXp);
     setActiveChallenge(null);
     setChallengeCompleted(challengesCompleted + 1);
   }
 
   function startNewChallenge() {
     const randomChallengeIndex = Math.floor(Math.random() * challanges.length);
-    setActiveChallenge(challanges[randomChallengeIndex]);
+    const challenge = challanges[randomChallengeIndex];
+
+    setActiveChallenge(challenge);
+
+    new Audio("/notification.mp3").play();
+
+    if (Notification.permission === "granted") {
+      new Notification("Novo desafio 🎉", {
+        body: `Valendo ${challenge.amount}xp`,
+      });
+    }
   }
 
   function resetChallenge() {
