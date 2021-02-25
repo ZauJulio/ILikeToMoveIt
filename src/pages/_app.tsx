@@ -1,12 +1,16 @@
 import "../styles/global.scss";
 
 import { ChallengesProvider } from "../contexts/ChallengesContext";
-import React, { useState } from "react";
+import { CountdownProvider } from "../contexts/CountdownContext";
+
+import React from "react";
 
 function MyApp({ Component, pageProps }) {
   return (
     <ChallengesProvider>
-      <Component {...pageProps} />;
+      <CountdownProvider>
+        <Component {...pageProps} />;
+      </CountdownProvider>
     </ChallengesProvider>
   );
 }
